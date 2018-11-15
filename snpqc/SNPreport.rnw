@@ -1,0 +1,394 @@
+\documentclass[10pt,a4paper,onecolumn,twoside]{article}
+\title{Quality control report for \Sexpr{projectname} SNP chip data}
+\author{\Sexpr{authors}}
+
+\begin{document}
+%\evensidemargin=-1cm
+\setlength{\evensidemargin}{53pt}
+\setlength{\oddsidemargin}{53pt}
+%\setkeys{Gin}{width=0.4\textwidth} % set figure size default in Sweave.sty is 0.8
+
+\maketitle
+
+%\listoftables 
+%\listoffigures 
+
+<<echo=FALSE,results=hide>>= 
+# read in variables for report
+readat=paste(outputname,"/",sep="")
+repdata=read.table(paste(readat,"ForReport.txt",sep=""),header=F,sep="\t")
+numanim=repdata[1,1]
+numsnp=repdata[2,1]
+animindex=repdata[3,1]
+snpindex=repdata[4,1]
+missing=repdata[5,1]
+missingcutoff=repdata[6,1]
+GCcutoff=repdata[7,1]
+gczero=repdata[8,1]
+gcnine=repdata[9,1]
+gccustom=repdata[10,1]
+gcpercent=repdata[11,1]
+gcmean=repdata[12,1]
+gcmedian=repdata[13,1]
+maf0=repdata[14,1]
+maf=repdata[15,1]
+mafcutoff=repdata[16,1]
+hetero=repdata[17,1]
+heterosd=repdata[18,1]
+hout=repdata[19,1]
+HWna=repdata[20,1]
+HW0=repdata[21,1]
+HWb=repdata[22,1]
+HW=repdata[23,1]
+HWcutoff=repdata[24,1]
+scallcutoff=repdata[25,1]
+cormean=repdata[26,1]
+cormin=repdata[27,1]
+cormax=repdata[28,1]
+cortot=repdata[29,1]
+corcutoff=repdata[30,1]
+sHmean=repdata[31,1]
+sHsd=repdata[32,1]
+sHcutoff=repdata[33,1]
+hsout=repdata[34,1]
+unmapped=repdata[35,1]
+datapoints=repdata[36,1]
+excluded=repdata[37,1]
+reject=read.table(paste(readat,"rejectSNPsummary.txt",sep=""),header=T,sep="\t",check.names=F)
+reject2=read.table(paste(readat,"rejectSamplesummary.txt",sep=""),header=T,sep="\t",check.names=F)
+reject3=read.table(paste(readat,"rejectMapsummary.txt",sep=""),header=T,sep="\t",check.names=F)
+callsum=read.table(paste(readat,"callrates.txt",sep=""),header=T,sep="\t")
+sumslides2=read.table(paste(readat,"samplestats.txt",sep=""),header=T,sep="\t")
+similar=read.table(paste(readat,"similar.txt",sep=""),header=T,sep="\t")
+mapsum=read.table(paste(readat,"mapsummary.txt",sep=""),header=T,sep="\t")
+@
+                 
+\begin{abstract}
+This report encompasses the quality control summary for the \Sexpr{projectname} SNP chip data. 
+A total of \Sexpr{numanim} samples were genotyped for \Sexpr{numsnp} SNPs.
+Quality control was performed across samples, across snps and on physical location.
+The results for each of these and the filtering criteria used are discussed herein.  
+\end{abstract}
+
+%\tableofcontents
+
+\section{QC filtering results}
+Out of the \Sexpr{numanim} samples, \Sexpr{animindex} did not pass the filtering criteria (\Sexpr{round(animindex/numanim*100,2)}\%). 
+From the \Sexpr{numsnp} SNPs \Sexpr{snpindex} were excluded (\Sexpr{round(snpindex/numsnp*100,2)}\%).
+Out of the total \Sexpr{datapoints} genotypes, \Sexpr{excluded} were excluded (\Sexpr{round(excluded/datapoints*100,2)}\%). 
+Filtering criteria consisted of QC metrics across SNPs, across arrays and on the physical mapping as detailed in the following sections.
+
+Table \ref{table:reject} summarizes the number of SNPs and samples rejected for each QC criterion. Note that many of these overlap across criteria,
+thus the final numbers are not simply a sum of the rejection numbers for each criterion.
+
+The correlation criterion for samples was not used to reject samples but simply to flag potential replicates which should be checked before further analyses. 
+Correlation includes SNPs and samples flagged as bad which makes samples less similar than they should be. The correlation matrix should be used only for QC purposes. 
+For downstream analysis the GRM constructed after data filtering should be used.
+
+\begin{table}
+\emph{ \caption{Summary of SNPs and samples rejected for each QC criterion.}
+\label{table:reject}}
+\begin{center}
+\begin{tabular}{r r}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=reject
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tableheader=paste(paste(names(reject),collapse=" & "),"\\\\\\\\")  
+@
+ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=reject2
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tableheader=paste(paste(names(reject2),collapse=" & "),"\\\\\\\\")  
+@ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=reject3
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tableheader=paste(paste(names(reject3),collapse=" & "),"\\\\\\\\")  
+@
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{SNP statistics}
+In this section the descriptive statistics for the dataset on a per SNP basis are discussed.
+Figures \ref{figure:good} and \ref{figure:bad} illustrate the difference between good and bad quality genotypes. 
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"good.pdf",sep="/")}}
+\emph{ \caption{Example of a good quality SNP. Top left: clustering for each genotype (non calls are shown as black circles). 
+Top right: GC scores. Bottom left: non-calls and allelic frequencies (actual counts are shown under the histogram).
+Bottom right: genotypic counts, on the left hand side the expected counts and on
+the right the observed counts; the last block shows number of non-calls. }
+\label{figure:good}}
+\end{figure}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"bad.pdf",sep="/")}}
+\emph{ \caption{Example of a bad quality SNP. Top left: clustering for each genotype (non calls are shown as black circles - here all samples). 
+Top right: GC scores. Bottom left: non-calls and allelic frequencies (actual counts are shown under the histogram).
+Bottom right: genotypic counts, on the left hand side the expected counts and on
+the right the observed counts; the last block shows number of non-calls. }
+\label{figure:bad}}
+\end{figure}
+
+\subsection{SNP call rates}
+The number of SNPs with a call rate higher than 99.5\% was
+\Sexpr{round(callsum$frequency[5],3)*100}\% (Table \ref{table:callrates} and Figure \ref{figure:callrates}).
+As a rule of thumb around 90\% of the snps would be expected to have a call rate above 99.5\% and less than 2\% would have call rates under 90\%.
+In some cases the bulk of the data may be just below, in the 0.99-0.995 band (see breakdown of call rates in \ref{table:callrates}). Note that this will not hold well if there is ascertainment bias problems with the SNPs 
+(i.e. SNPs selected for the chip derived from one population and the samples come from a very different one).  
+In this dataset \Sexpr{missing} SNPs failed genotyping in over \Sexpr{missingcutoff}\% of the samples (these were removed from the dataset). 
+Note that the number of SNPs failed depends on the GC cutoff threshold -- all SNPs below \Sexpr{GCcutoff} are deemed to have failed (see further details in GC scores section). 
+
+\begin{table}
+\emph{ \caption{Call rates for SNPs.}
+\label{table:callrates}}
+\begin{center}
+\begin{tabular}{r r r}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=callsum
+tabledata$frequency=round(tabledata$frequency,3)
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tableheader=paste(paste(names(callsum),collapse=" & "),"\\\\\\\\")  
+@ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"callrates.pdf",sep="/")}}
+\emph{ \caption{distribution of call rates per SNP.}
+\label{figure:callrates}}
+\end{figure}
+
+\subsection{GC scores}
+GC scores were filtered for a threshold value of \Sexpr{GCcutoff}. All calls under this value were discarded (note that this is specific for each snp on an individual sample).  
+The dataset contained \Sexpr{gczero} SNPs where all GC scores were 0.
+A further \Sexpr{gccustom} SNPs had a GC score over \Sexpr{GCcutoff} in less than \Sexpr{gcpercent}\% of the samples.
+\Sexpr{gcnine} SNPs had a GC score of at least 0.9 for at least 90\% of the genotypes.
+The mean GC scores for this data is \Sexpr{gcmean} and the median is \Sexpr{gcmedian}. The distribution of GC scores is shown in Figures \ref{figure:densityGC} and \ref{figure:pieGC}.  
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"densityGC.pdf",sep="/")}}
+\emph{ \caption{Histogram of GC scores.}
+\label{figure:densityGC}}
+\end{figure}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"pieGC.pdf",sep="/")}}
+\emph{ \caption{Pie plot of GC scores.}
+\label{figure:pieGC}}
+\end{figure}
+
+\subsection{Minor allele frequency}
+The minor allele frequency (MAF) was calculated for each SNP. \Sexpr{maf0} SNPs are homozygous for the locus. 
+A further \Sexpr{maf} had a MAF below \Sexpr{mafcutoff} and were discarded. The distribution of MAFs is shown in figure \ref{figure:maf}.
+The average heterozygosity for the SNPs is \Sexpr{hetero} and the standard deviation is \Sexpr{heterosd}.
+A total \Sexpr{hout} SNPs were detected as outliers (3SD from the mean and removed). Heterozygosity (He) and gene diversity (Ho) distributions are shown in figure \ref{figure:hetero}.
+ 
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"maf.pdf",sep="/")}}
+\emph{ \caption{Minor allele frequency distribution for SNPs.}
+\label{figure:maf}}
+\end{figure}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"heterozygosity.pdf",sep="/")}}
+\emph{ \caption{Heterozygosity distribution for SNPs. Note: standard deviations are biased.}
+\label{figure:hetero}}
+\end{figure}
+
+\subsection{Hardy-Weinberg equilibrium}
+Hardy-Weinberg (HW) equilibrium was calculated for each individual SNP using an exact chi-square test with continuity correction.
+HW equilibirum could not be determined for \Sexpr{HWna} SNPS 
+because these were either homozygous or had no calls assigned. \Sexpr{HW0} SNPs had a p-value of 0. 
+A p-value cutoff of \Sexpr{HWcutoff} shows \Sexpr{HW} SNPs out of HW equilibrium 
+(note that this also includes SNPs that would not be expected to be in HW equilibrium such as those on sex chromosomes, mitochondria, etc). Figure \ref{figure:HW} shows the distribution of p-values for HW equilibrium.
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"HW.pdf",sep="/")}}
+\emph{ \caption{P-value distribution and thresholds for Hardy-Weinberg equilibrium.}
+\label{figure:HW}}
+\end{figure}
+
+\section{Array and sample statistics}
+In this section the descriptive statistics for the dataset on a per chip/sample basis are discussed.
+
+\subsection{Sample call rates}
+Out of the total \Sexpr{numanim} samples, \Sexpr{numanim-sumslides2[5,2]} samples had a call rate at or above \Sexpr{scallcutoff}\% and 
+\Sexpr{numanim-sumslides2[4,2]} samples had a call rate at or above 97\%.
+The mean call rate across samples was \Sexpr{round(sumslides2[3,2]*100,2)}\%. An overview is given in Table \ref{table:samples}. 
+
+\begin{table}
+\emph{ \caption{Call rates for samples.}
+\label{table:samples}}
+\begin{center}
+\begin{tabular}{r r}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=sumslides2
+tabledata[1:3,2]=round(tabledata[1:3,2],3)
+tabledata[4:5,2]=round(tabledata[4:5,2],0)
+tabledata[,2]=as.character(tabledata[,2])
+tableheader=paste(paste(names(tabledata),collapse=" & "),"\\\\\\\\") 
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tabledata=paste("num samples &  ",numanim," \\\\\\\\",tabledata)
+@ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline
+\end{tabular}
+\end{center} 
+\end{table} 
+
+\subsection{Sample correlations}
+The average correlation between samples is \Sexpr{cormean}. The statistic is useful to identify replicates in the dataset and
+samples that show very divergent genotypes due to quality problems (Figure \ref{figure:heatcor}).
+The minimum is \Sexpr{cormin}
+and the maximum is \Sexpr{cormax}. \Sexpr{cortot} samples have a correlation above \Sexpr{corcutoff}.
+Figure \ref{figure:correlation} shows the distribution of correlations between samples. The sample pairs with high correlations are given in Table \ref{table:correlation}. 
+Note: correlation herein is a simple Pearson correlation of the entire dataset without correcting for allelic frequencies or removing missing calls (use the GRM for downstream analyses).
+For this reason, even replicate samples will not have a perfect correlation of one (e.g. a given snp is called in one sample and missing in the replicate). A missing value of nine is used 
+which teases genotypes with problems quite strongly apart.     
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"heatcorrelation.png",sep="/")}}
+\emph{ \caption{Heatmap of correlations between samples.}
+\label{figure:heatcor}}
+\end{figure}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"correlation.pdf",sep="/")}}
+\emph{ \caption{Correlations between samples.}
+\label{figure:correlation}}
+\end{figure} 
+
+
+
+
+
+
+\begin{table}
+\emph{ \caption{Sample pairs with high correlations.}
+\label{table:correlation}}
+\begin{center}
+\begin{tabular}{r r r}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=similar
+tableheader=paste(paste(names(tabledata),collapse=" & "),"\\\\\\\\") 
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+tabledata=gsub("_","",tabledata) # has problems with _ symbol remove from name
+@ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline
+\end{tabular}
+\end{center} 
+\end{table} 
+
+
+
+
+
+
+
+\subsection{Sample heterozygosity}
+The average heterozygosity for the samples is \Sexpr{sHmean} and the standard deviation is \Sexpr{sHsd}.
+A total \Sexpr{hsout} samples were detected as outliers (\Sexpr{sHcutoff}SD from the mean). Sample heterozygosity is shown in figure \ref{figure:samplehetero}.
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"samplehetero.pdf",sep="/")}}
+\emph{ \caption{Heterozygosity for samples. Note: standard deviations are biased.}
+\label{figure:samplehetero}}
+\end{figure} 
+
+\section{Physical mapping summary}
+A summary of the mapping information for the chip is given in table \ref{table:mapsum}.
+Physical mapping plots for Hardy-Weinberg, MAF, GC scores and heterozygosity statistics are respectively shown in Figures 
+\ref{figure:HWmap}, \ref{figure:mafmap}, \ref{figure:GCmap} and \ref{figure:heteromap}. \Sexpr{unmapped} SNPs are on excluded chromosomes and were removed.
+Many SNPs on e.g. the X chromosome are, as would be expected, out of HW equilibrium.
+The key point is to observe if any of the other chromosomes show a clear pattern of disequilibrium in any particular region.
+The same applies to MAF, GC scores and heterozygosity chromosomal plots - an indication of problems is a pattern in any given region.
+
+\begin{table}
+\emph{ \caption{Summary of mapping information per chromosome. Second column is the number of SNPs per chromosome. Columns min, max and mean are respectively the
+minimum distance between adjacent SNPs, the maximum distance and the average distance. }
+\label{table:mapsum}}
+\begin{center}
+\begin{tabular}{r r r r r r}
+\hline \hline
+<<echo=FALSE,results=hide>>= 
+tabledata=mapsum[,-6]
+tableheader=paste(paste(names(tabledata),collapse=" & "),"\\\\\\\\") 
+tabledata=paste(paste(apply(tabledata,1,function(x) paste(x,collapse=" & ")),collapse=" \\\\\\\\ "),"\\\\\\\\")
+@ 
+\Sexpr{tableheader}
+\hline
+\Sexpr{tabledata}
+\hline 
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"HWmap.pdf",sep="/")}}
+\emph{ \caption{Hardy-Weinberg plotted against physical location for each chromosome (unmapped SNPs also included).}
+\label{figure:HWmap}}
+\end{figure} 
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"mafmap.pdf",sep="/")}}
+\emph{ \caption{Minor allele frequencies plotted against physical location for each chromosome (unmapped SNPs also included).}
+\label{figure:mafmap}}
+\end{figure} 
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"GCmap.pdf",sep="/")}}
+\emph{ \caption{GC scores plotted against physical location for each chromosome (unmapped SNPs also included).}
+\label{figure:GCmap}}
+\end{figure} 
+
+\begin{figure} 
+\centering
+\includegraphics{\Sexpr{paste(reportname,"heteromap.pdf",sep="/")}}
+\emph{ \caption{Heterozygosity plotted against physical location for each chromosome (unmapped SNPs also included).}
+\label{figure:heteromap}}
+\end{figure} 
+                         
+\end{document}

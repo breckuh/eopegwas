@@ -1,0 +1,52 @@
+############ data ######################
+data/SNPmap.txt			# snpMap file path and name - use full path and name or from working directory downwards
+data/sampleMap.txt		# sampleMap file path and name - use full path and name or from working directory downwards
+data/SNPsample.txt		# genotypes file path and name- use full path and name or from working directory downwards
+############ data file parameters ###################
+1				# index of SNP in genotype file - must match names in SNP map file or database column
+2				# index of sample identifiers in genotype file - must match names in sample map file or database column
+3				# index of SNP allele1 in genotype file - currently only uses A/B allele calls or database column
+4				# index of SNP allele2 in genotype file - currently only uses A/B allele calls or database column
+5				# index of gcscore in genotype file or database column (set this to zero if GC scores not available - but not an ideal scenario)
+1				# index of sample identifiers in sample map file or database column
+1				# index of SNP names in SNP map file or database column
+2				# index of chromosome in SNP map file or database column
+3				# index of base pair position in SNP map file or database column
+1				# number of lines to skip in genotypes file (headers, etc). Faster to build DB if there are no headers
+1				# number of lines to skip in sample map file (headers, etc). Faster to build DB if there are no headers
+1				# number of lines to skip in SNP map file (headers, etc). Faster to build DB if there are no headers
+-	NA			# symbols for missing alleles (missing data in the genotypes file). Only uses first one in R
+########### filtering parameters ####################
+10 				# over X percent genotyping fail - snp criterion
+0.50 				# median call (gc score) rates smaller than X  - snp criterion
+0 				# all GC scores zero or NA (do not change) - snp criterion
+0.5				# GC < X in Y (below) percent of samples - snp criterion
+90 				# GC < X (above) in Y percent of samples - snp criterion
+0.0				# MAF zero - snps fixed across all samples, use negative value not to exclude snps that are not segregating 
+0.01				# minor allele frequency MAF < X - snp criterion
+3				# heterozygosity deviation in number of standard deviations X - snp criterion
+10e-16				# Hardy-Weinberg threshold X - snp criterion
+0.90 				# call rates lower than X - sample criterion
+3				# heterozygosity deviation in number of standard deviations X - sample criterion
+0.98				# correlation between samples - not used for exclusion, just for listing
+########## use map info to remove SNP ###############################
+0	X	Y		# unmapped, X, Y, mitochondrial, etc - specific for map file. Can also exclude autosomes. Leave blank not to exclude anything.
+######### output parameters ###########################
+false 				# exclude all rejected SNP and samples from 'reshaped.txt' file. If false all SNP and samples are maintained in file (sample and snp files will also show only subset)
+false				# set all rejected samples and SNP to missing value (only relevant if above parameter set to 'false')
+9				# symbol for missing/rejected values
+0	1	2		# values for genotypes in output file
+true				# build genomic relationship matrix (true/false)
+######## database info ###############################
+Kelly						# name of database (Note: if already exists genotypes/samples will be appended and map replaced) - will be saved in directory databases; output/report results will be stored in new directory 'dbName_output' and 'dbName_report' next to DB
+false						# use default DB location, under 'databases' in working directory (use false for custom location). Output also in this directory
+data/result			# only used if above set to false
+\t						# file separator - not implemented
+0						# X info in genotype file (or use 0 for missing)
+0						# Y info in genotype file (or use 0 for missing)
+######## info for report ##########################
+Maternal Cardiovascular-Related Single Nucleotide Polymorphisms, Genes and Pathways Associated with Early-Onset Preeclampsia			# title of project
+Kelly Yamasato, et al.			# authors 
+
+
+
