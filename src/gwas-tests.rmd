@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+source("setup.r")
+```
+
+# Look at the top SNPs before correction
+
+```{r}
+
+res = lapply(c("dominant", "codominant", "recessive", "overdominant", "log-additive"), function (modelName) {
+  cache.get(modelName, function () stop("Use thread.r to compute pvals.")) %>% as.data.frame %>% rownames_to_column(var = "snp") %>% arrange_at(3) %>% dplyr::slice(1:10) %>% select(-one_of("comments"))
+})
+
+res
+```
+
+# Look at the top SNPs after correction
+
+
+```{r}
+
+res = lapply(c("dominant", "codominant", "recessive", "overdominant", "log-additive"), function (modelName) {
+  Bonferroni.sig(cache.get(modelName, function () stop("Use thread.r to compute pvals.")), model = modelName, alpha = 0.05, include.all.SNPs=FALSE)
+})
+
+```
+

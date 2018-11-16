@@ -1,0 +1,26 @@
+---
+title: "Manhattan Plot"
+output: html_notebook
+---
+
+```{r}
+source("setup.r")
+```
+
+
+```{r}
+
+filips = pe.getPValsAll(suffix = "Filip")
+pvalueResults = filips %>% dplyr::arrange(chr)
+manhattanPlot(pvalueResults$minPval, pvalueResults$chr, signif=5e-7, main = "Manhattan plot for Filipino cohort")
+
+allPs = pe.getPValsAll("All")
+pvalueResults = allPs %>% dplyr::arrange(chr)
+manhattanPlot(pvalueResults$minPval, pvalueResults$chr, signif=5e-7, main = "QC: Manhattan plot shows p-values with lack of significant SNPs")
+
+# Drop any with calls less than .95, non-calls, and monomorphic
+allPsQC = pe.getPValsAll("QC")
+pvalueResults = allPsQC %>% dplyr::arrange(chr)
+manhattanPlot(pvalueResults$minPval, pvalueResults$chr, signif=5e-7, main = "Lack of significant SNPs with GenCall > .95")
+
+```

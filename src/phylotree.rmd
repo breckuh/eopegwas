@@ -1,0 +1,35 @@
+---
+title: "Phylogenetic Tree"
+date: "October 31, 2018"
+output: html_document
+---
+
+```{r}
+source("setup.r")
+```
+
+### Let's generate a Phylogenetic Tree
+
+
+```{r}
+tree = cache.get("phylotree", function() {
+  write_tsv(pe.getSimpleSNPFormatForPhyloTree(), "../output/simplesnp.tsv")
+  
+  # Now run snphylo: http://chibba.pgml.uga.edu/snphylo/
+  # We assume it is stored in the ignore folder
+  system("../ignore/SNPhylo/snphylo.sh -s ../output/simplesnp.tsv -P ../output/snphylo")
+  read.tree("../output/snphylo.ml.tree")
+})
+```
+
+
+```{r}
+clinical = pe.getClinicalInfo()
+treePlot = clinical %>% mutate(Ethnicity = clinical$ethnicityCategory, Ethnicities = factor(mixed, labels = c("Single", "Mixed")))
+treePlot$patientId = glue("Sample{treePlot$patientId}")
+ggtree(tree, color = "grey") %<+% treePlot +
+  geom_tiplab(aes(color=Ethnicity, label = Ethnicity), show.legend = FALSE) +
+  geom_tippoint(size = 2, aes(color=Ethnicity, shape = Ethnicities), alpha=1) +
+  labs(title = "QC: Phylogenetic Tree from alignment with self-reported ethnicity") +
+  theme(legend.position="right")
+```

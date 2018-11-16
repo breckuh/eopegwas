@@ -1,0 +1,174 @@
+---
+title: "SNP Data"
+date: "October 31, 2018"
+output: html_document
+---
+
+```{r}
+source("setup.r")
+```
+
+
+```{r}
+snpdata <- pe.getSnpData()
+head(snpdata)
+```
+
+### Let's look at the entire SNP data and see what we find
+
+
+```{r}
+allele1 = summary(as.factor(snpdata$allele1))
+allele2 = summary(as.factor(snpdata$allele2))
+res = data.frame(baseCount = allele1, allele = "allele1", base = names(allele1))
+res2 = data.frame(baseCount = allele2, allele = "allele2", base = names(allele2))
+sums = rbind(res, res2)
+ggplot(sums, aes(x = base, fill = allele, y = baseCount)) + geom_bar(position = "dodge", stat = "sum") + labs(title = "Nucleotide Occurrence in SNP dataset") + scale_y_continuous(labels = comma)
+sums
+```
+
+
+### Is there any difference in base pair frequency amongst the samples?
+
+
+```{r}
+bySample1 = snpdata %>% select(sampleId, allele1) %>% group_by(sampleId, allele1) %>% summarise(n = n())
+ggplot(bySample1, aes(x = sampleId, y = n, color = allele1)) + geom_point()
+ggplot(bySample1, aes(x = allele1, y = n, color = allele1)) + geom_boxplot()
+
+bySample2 = snpdata %>% select(sampleId, allele2) %>% group_by(sampleId, allele2) %>% summarise(n = n())
+ggplot(bySample2, aes(x = sampleId, y = n, color = allele2)) + geom_point()
+ggplot(bySample2, aes(x = allele2, y = n, color = allele2)) + geom_boxplot()
+```
+## What are those outliers? Let's look at the call rates
+
+All of the outliers are with patient 78. Let's see the avg gen call score by patient:
+
+```{r}
+# There are 8 values with a NaN for gencall score. We can set those to 0.0 because they are all uncalled bases ("--")..
+snpdata[is.na(snpdata$avgGenCallScore),]["avgGenCallScore"] = 0
+```
+
+
+```{r}
+scoresByPatient = snpdata %>% select(sampleId, avgGenCallScore) %>% group_by(sampleId) %>% summarise(average = mean(avgGenCallScore))
+summary(scoresByPatient$average)
+scoresByPatient$preeclampsia = clinical %>% arrange(patientId) %>% select(preeclampsia) %>% unlist %>% as.factor
+ggplot(scoresByPatient, aes(y = average, x = sampleId, color = preeclampsia)) + geom_point() + geom_label(aes(label = sampleId))
+```
+
+### Takeaways
+
+- Patient 78 has low quality reads.
+
+## Let's make sure there are no noticeable difference in calls between the case and control groups
+
+
+```{r}
+a1 = snpdata %>% group_by(allele1, sampleId) %>% summarise(count = n()) %>% spread(allele1, count)
+a2 = snpdata %>% group_by(allele2, sampleId) %>% summarise(count = n()) %>% spread(allele2, count) %>% select(-sampleId)
+colnames(a2) = c("-2", "A2", "C2", "G2", "T2")
+aBoth= cbind(a1, a2)
+aBoth$preeclampsia = clinical$preeclampsia
+aBoth = aBoth %>% select(-sampleId) %>% group_by(preeclampsia) %>% summarise_all(funs(mean))
+aBoth
+
+aBoth2 = t(aBoth)
+colnames(aBoth2) = c("control", "preeclampsia")
+aBoth2 = as.data.frame(aBoth2)
+aBoth2 = aBoth2[-1,]
+aBoth2$base = unlist(rownames(aBoth2))
+aBoth2 = aBoth2 %>% gather('control', 'preeclampsia', key = 'group', value = 'counts')
+ggplot(aBoth2, aes(x = base, fill = group, y = counts)) + geom_bar(position = "dodge", stat = "sum") + labs(title = "Nucleotide Occurrence by Case/Control Group") + scale_y_continuous(labels = comma)
+```
+
+# Takeaway: No difference found.
+
+# Let's look at the variance in SNPS from both alleles combined
+
+```{r}
+simpleSNP = snpdata
+simpleSNP$avgGenCallScore = NULL
+simpleSNP = simpleSNP %>% unite(alleles, c(allele1, allele2), sep = "")
+colnames(simpleSNP) = c("location", "sample", "alleles")
+simpleSNP = simpleSNP %>% spread(sample, alleles, sep = "")
+head(simpleSNP)
+```
+
+```{r}
+countOfVariantsPerLocation <- apply(simpleSNP[,-1], 1, function(x)length(unique(x)))
+histogram(countOfVariantsPerLocation, col=brewer.pal(n = 3, name = "Set1")[2])
+data.frame(countOfVariantsPerLocation = countOfVariantsPerLocation) %>% group_by(countOfVariantsPerLocation) %>% summarise(n=n())
+```
+
+### So there is no variation in 60,000 of these locations.
+
+### In 16 loci Illumina has 2 measurements
+
+```{r}
+duplicates = pe.getDuplicateMeasurementLocations()
+duplicates
+```
+
+### Let's see what's happening at these spots and if it is safe to drop one set
+
+```{r}
+fullSet = pe.getSnpsWithChipInfo()
+head(fullSet)
+```
+
+```{r}
+dupeMeasurements = fullSet %>% select(sampleId, allele1, allele2, Chr, MapInfo) %>% mutate(id = paste(Chr, MapInfo)) %>% filter(id %in% duplicates$id)
+dupeMeasurements[1:5,]
+```
+
+### Takeaway
+
+There is variation at these SNPs. We'll need to think about how to handle
+
+
+```{r}
+phyloSnp = pe.getSimpleSNPFormatForPhyloTree()
+chrData = phyloSnp %>% group_by(`#Chrom`) %>% summarise(loci = n()) %>% mutate(Chr = 1:25) %>% arrange(Chr)
+ggplot(chrData, aes(x = Chr, y = loci, label  = `#Chrom`)) + geom_col() + geom_label()
+chrData
+```
+
+### Takeaway
+
+We confirm there are no Y chromosome measurements made.
+
+## Let's see how often the variations vary for each allele
+
+
+```{r}
+alleleCounts = snpdata %>% select(illuminaSnpLocation, allele1) %>% group_by(illuminaSnpLocation) %>% summarise(numberOfAlleles = length(unique(allele1)))
+alleleCounts$snpIndex = seq.int(nrow(alleleCounts))
+ggplot(alleleCounts, aes(x = snpIndex, y = numberOfAlleles)) + geom_hex( bins = 30) + scale_y_continuous(breaks = c(1,2,3)) + labs(title = "Density of SNP variation for Allele 1")
+alleleCounts = snpdata %>% select(illuminaSnpLocation, allele2) %>% group_by(illuminaSnpLocation) %>% summarise(numberOfAlleles = length(unique(allele2)))
+alleleCounts$snpIndex = seq.int(nrow(alleleCounts))
+ggplot(alleleCounts, aes(x = snpIndex, y = numberOfAlleles)) + geom_hex( bins = 30) + scale_y_continuous(breaks = c(1,2,3)) + labs(title = "Density of SNP variation for Allele 2")
+
+```
+
+# Let's see why we have more than 2 nucleotides found in a base pair
+
+
+```{r}
+alleles1 = snpdata %>% mutate(allele = allele1) %>% select(illuminaSnpLocation, allele) %>%
+  group_by(illuminaSnpLocation) %>% mutate(allele = paste(unique(allele), collapse = "")) %>%
+  group_by(allele) %>% summarise(count = n()) %>% mutate(len = str_length(allele), count = count/60) %>%
+  arrange(desc(len)) %>% select(count, allele)
+
+
+alleles2 = snpdata %>% mutate(allele = allele2) %>% select(illuminaSnpLocation, allele) %>%
+  group_by(illuminaSnpLocation) %>% mutate(allele = paste(unique(allele), collapse = "")) %>%
+  group_by(allele) %>% summarise(count = n()) %>% mutate(len = str_length(allele), count = count/60) %>%
+  arrange(desc(len)) %>% select(count, allele)
+
+both = cbind(alleles1, alleles2[-2])
+colnames(both) = c("allele1count", "nucleotides", "allele2count")
+both
+```
+
+### Takeaway: 3rd read is just noncalls.

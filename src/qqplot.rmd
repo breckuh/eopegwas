@@ -1,0 +1,12 @@
+---
+title: "qqplot"
+output: html_notebook
+---
+
+```{r}
+source("setup.r")
+```
+
+```{r}
+qqPlot(pe.getPValsAll()$minPval, main = "QQPlot of p-values is consistent with uniform null distribution")
+```

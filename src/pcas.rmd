@@ -1,0 +1,95 @@
+---
+title: "PCAs"
+output: html_notebook
+---
+
+#### Let's see if any clusters emerge in Preeclampsia vs Control
+
+```{r}
+source("setup.r")
+library(rgl)
+```
+
+
+```{r}
+clinical = pe.getClinicalInfo()
+
+plotTemplateDisease = function(pca, plotTitle, clinicalData = pe.getClinicalInfo()) {
+  df <- cbind(clinicalData, as.data.frame(pca$x))
+  importance = summary(pca)$importance
+  label1 = importance[2] * 100
+  label2 = importance[5] * 100
+  ggplot(df, aes(x=PC1, y=PC2, color=as.factor(preeclampsia))) + geom_point(size = 3) +
+  scale_color_manual(values = brewer.pal(n = 8, name = "Set1"), labels = c("E.O. Preeclampsia", "Control"), name = "Group") +
+  labs(title = plotTitle, x = glue("PC1 - {round(label1, 1)}%"), y = glue("PC2 - {round(label2, 1)}%"))
+}
+
+# Let's do the PCA after dropping noncalls, monomorphisms and standardizing items to -1,0,1
+pca = prcomp(pe.getNumericAlleleMatrix())
+plotTemplateDisease(pca, "PCA of SNPs does not show obvious clustering associated with disease status")
+
+```
+
+# We can also try a 3D PCA:
+
+```{r}
+plot3d(x=pca$x[,1],y=pca$x[,2],z=pca$x[,3], col = c("red","blue")[clinical$preeclampsia + 1], type="s",radius=3)
+```
+
+
+### Nothing jumps out. Let's double check ethnicities, as we should see clusters from SNPS there.
+
+
+```{r}
+clinical = pe.getClinicalInfo()
+
+plotTemplate = function(pca, plotTitle){
+  df <- cbind(clinical, as.data.frame(pca$x))
+  importance = summary(pca)$importance
+  label1 = importance[2] * 100
+  label2 = importance[5] * 100
+
+  ggplot(df, aes(x=PC1, y=PC2, color=clinical$ethnicityCategory, shape = as.factor(mixed))) +
+  geom_point(size = 3) +
+  scale_color_manual(values = brewer.pal(n = 8, name = "Set1"), labels = levels(clinical$ethnicityCategory), name = "Group") +
+  labs(title = plotTitle, x = glue("PC1 - {round(label1, 1)}%"), y = glue("PC2 - {round(label2, 1)}%")) +
+  scale_shape_manual(name = "Ethnicities", labels = c("Single", "Mixed"), values = c(16,17) )
+}
+
+pca = prcomp(pe.getNumericAlleleMatrix())
+plotTemplate(pca, "QC: PCA of SNPs shows clustering by reported ethnicity, as expected")
+
+```
+
+# Let's do a 3D plot of ethnicity
+
+```{r}
+plot3d(x=pca$x[,1],y=pca$x[,2],z=pca$x[,3], col = brewer.pal(n = 4, name = "Set1")[clinical$ethnicityCategory], type="s",radius=3)
+```
+
+
+
+```{r}
+clinical = pe.getClinicalInfo()
+
+plotTemplateDiseaseEth = function(pca, plotTitle, clinicalData = pe.getClinicalInfo()) {
+  df <- cbind(clinicalData, as.data.frame(pca$x))
+  importance = summary(pca)$importance
+  label1 = importance[2] * 100
+  label2 = importance[5] * 100
+  ggplot(df, aes(x=PC1, y=PC2, color=as.factor(preeclampsia),  shape = as.factor(mixed))) + geom_point(size = 3) +
+  scale_color_manual(values = brewer.pal(n = 8, name = "Set1"), labels = c("E.O. Preeclampsia", "Control"), name = "Group") +
+  scale_shape_manual(name = "Ethnicities", labels = c("Single", "Mixed"), values = c(16,17) ) +
+#  geom_text(aes(label=ifelse(PC1 > 50 & (PC2 > 50 | PC2 < -50), patientId, "")),hjust=-.5, vjust=-.5, size = 2.5, color = "black") +
+  labs(title = plotTitle, x = glue("PC1 - {round(label1, 1)}%"), y = glue("PC2 - {round(label2, 1)}%"))
+}
+
+domRecMatrix = pe.getNumericAlleleMatrix()
+ress = lapply(levels(clinical$ethnicityCategory), function (name) {
+  groupIds = clinical$ethnicityCategory == name
+  pca = prcomp(domRecMatrix[groupIds,])
+  plotTemplateDiseaseEth(pca, glue("PCA of SNPs for {name} Ethnicity shows no clustering by disease"), clinical[groupIds,])
+})
+ress
+
+```

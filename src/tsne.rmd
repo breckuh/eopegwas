@@ -1,0 +1,47 @@
+---
+title: "Tsne"
+output: html_document
+---
+
+```{r}
+source("setup.r")
+library(Rtsne)
+library(scatterplot3d)
+library(rgl)
+```
+
+
+```{r}
+
+clinical = pe.getClinicalInfo()
+domRecMatrixNoInvariants = pe.getNumericAlleleMatrix()
+tsne <- Rtsne(domRecMatrixNoInvariants, dims = 2, max_iter = 500, perplexity = 3)
+```
+
+```{r}
+
+df = data.frame(d1 = tsne$Y[,1], d2 = tsne$Y[,2], preeclampsia = clinical$preeclampsia)
+ggplot(df, aes(x=d1, y=d2, color=as.factor(preeclampsia))) + geom_point(size = 3) +
+  scale_color_manual(values = brewer.pal(n = 8, name = "Set1"), labels = c("E.O. Preeclampsia", "Control"), name = "Group") +
+  labs(title = "No clustering observed in tSNE")
+```
+
+```{r}
+# Let's try in 3D
+tsne <- Rtsne(domRecMatrixNoInvariants, dims = 3, max_iter = 500, perplexity = 3)
+scatterplot3d(x=tsne$Y[,1],y=tsne$Y[,2],z=tsne$Y[,3], color = c("red","blue")[clinical$preeclampsia + 1])
+```
+
+# Let's try interactive CSV
+
+```{r}
+tsne <- Rtsne(domRecMatrixNoInvariants, dims = 3, max_iter = 500, perplexity = 3)
+plot3d(x=tsne$Y[,1],y=tsne$Y[,2],z=tsne$Y[,3], col = c("red","blue")[clinical$preeclampsia + 1], type="s",radius=3)
+```
+
+# Let's look at Ethnicity
+
+```{r}
+tsne <- Rtsne(domRecMatrixNoInvariants, dims = 3, max_iter = 500, perplexity = 3)
+plot3d(x=tsne$Y[,1],y=tsne$Y[,2],z=tsne$Y[,3], col = c("red","blue", "green", "orange")[as.integer(clinical$ethnicityCategory)], type="s",radius=3)
+```

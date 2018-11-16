@@ -1,0 +1,66 @@
+---
+title: "Clinical EDA"
+date: "October 30, 2018"
+output: html_document
+---
+  
+```{r}
+source("setup.r")
+```
+
+## Let's read in the clinical data
+
+```{r}
+clinicalRaw = read_csv(pe.clinicalDataPath, col_types = cols())
+nrow(clinicalRaw)
+head(clinicalRaw)
+```
+
+### Filter Clinical
+
+49 of the mothers were excluded due to lack of adequate maternal sample. Exclude these from clinical
+
+
+```{r}
+clinical = pe.getClinicalInfo()
+skim_tee(clinical)
+```
+
+
+### Now let's create a numerical version of the clinical data for PCA and other methods
+
+
+```{r}
+clinicalNumeric = pe.getClinicalAsNumerics()
+clinicalNumeric[1:5,]
+```
+
+
+### Let's see any correlations in the clinical data
+
+In the plot below, we see only expected correlations.
+
+- Preeclampsia negatively correlates with gestAge and babyWgtGram
+- If it's your first baby (primaGravida) you are likely younger (momAge)
+- If your baby has IUGR it weighs less (babyWgtGram)
+- IUGR and preeclampsia are positively correlated
+- A longer gestAge correlates with a heavier birthweight (babyWgtGram)
+
+
+
+```{r}
+corrplot(cor(clinicalNumeric), method="circle", type="upper")
+```
+
+
+### We see correlation between ethnicities, as we would expect.
+
+Let's check correlation of patients just as a sanity check. We should not see anything too extreme.
+
+```{r}
+# todo: try different row/column removal strategies
+corrplot(pe.getNumericAlleleMatrix() %>% t %>% cor, method="circle", type="upper")
+```
+
+
+

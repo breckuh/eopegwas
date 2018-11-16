@@ -1,0 +1,33 @@
+---
+title: "Metabochip"
+output: html_notebook
+---
+
+```{r}
+source("setup.r")
+```
+
+## Some notes about this Illumina Dataset
+
+The data comes from the following:
+
+    Illumina
+    Descriptor File Name: Cardio-Metabo_Chip_11395247_A.bpm
+    Assay Format: Infinium HD Ultra
+    Date Manufactured: 9/8/2009
+    Loci Count: 196725
+
+
+```{r}
+# Let's look at the raw illumina data about this metabochip
+file.head(pe.illuminaPath, 10)
+```
+
+```{r}
+metaboChip = pe.getMetaboChip()
+head(metaboChip)
+```
+
+```{r}
+skim_tee(metaboChip)
+```

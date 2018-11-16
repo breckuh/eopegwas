@@ -1,0 +1,101 @@
+---
+title: "Maternal Cardiovascular-Related Single Nucleotide Polymorphisms, Genes, and Gene Regulatory Networks Associated with Early-Onset Preeclampsia"
+output: html_notebook
+---
+
+# Maternal Cardiovascular-Related Single Nucleotide Polymorphisms, Genes, and Gene Regulatory Networks Associated with Early-Onset Preeclampsia
+
+## Preeclampsia review
+
+- Early signs of preeclampsia include high blood pressure and protein in urine
+- Caused by the placenta
+- 2 - 8% worldwide
+- 63k deaths worldwide
+- Earlier occurrence associated with worse outcomes
+- 50 women per year die in US out of 4M births
+
+## Early-Onset Preeclampsia (EOPE)
+- A subset of PE
+- Distinguishing characteristics:
+-- Develops before 34 weeks of gestation. (Late Onset is after 37 weeks)
+-- EOPE is often complicated by IUGR (Interuterine Growth Restriction)
+-- EOPE has clear placental pathology
+-- Leision of uteralplacental malperfusion
+
+## Idea
+
+- EOPE may have an underlying genetic predisposition, (studies show family history a factor).
+- Many previous genetic investigations have looked at genes involved in ~10 processes such as angiogenesis and lipid metabolism
+- There are some known associations between preeclampsia and cardiovascular and metabolic disease such as chronic hypertension and diabetes, and women with a history of preeclampsia more likely to get these diseases
+- There are racial differences in rates of preeclampsia, NHOPI and Filipinos have increased risk
+
+## Observations
+
+- 60 mothers, first gestation, who delivered full-term normal birthweight infants
+- Cases: 31 women with EOPE
+ - Ethnically diverse
+  - 15 Filipino
+  - 6 White
+  - 4 other Asian
+  - 3 Native Hawaiian and other Pacific Islanders
+- Controls: 29 controls
+
+## Data collected
+
+- MetaboChip with 196,7250 SNPs associated with metabolic and cardiovascular traits
+ - All raw data is in an Illumina FinalReport txt file
+   - 400MB uncompressed
+   - TSV format (skip the first 9 lines)
+   - 11.8M lines. 1 line for each SNP.
+- Clinical data in clinical.csv
+
+## Goal
+
+- Find associations with EOPE
+  - In SNPS (cardiovascular and metabolic in particular)
+  - Genes
+  - Regulatory pathways
+
+## Results
+
+- No SNPs found to be correlated (after corrections)
+- Through gene-based tests:
+
+
+## Sections
+
+
+```{r child = 'manhattan-plots.rmd'}
+```
+
+```{r child = 'pcas.rmd'}
+```
+
+```{r child = 'qqplot.rmd'}
+```
+
+```{r child = 'gwas-tests.rmd'}
+```
+
+```{r child = 'clinical-eda.rmd'}
+```
+
+```{r child = 'phylotree.rmd'}
+```
+
+```{r child = 'tsne.rmd'}
+```
+
+```{r child = 'snp-eda.rmd'}
+```
+
+```{r child = 'metabochip-eda.rmd'}
+```
+
+```{r child = 'xgboost.rmd'}
+```
+
+```{r}
+# rmarkdown::render('main.rmd')
+```
+
