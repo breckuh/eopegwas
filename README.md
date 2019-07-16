@@ -4,9 +4,9 @@ This repository holds the code for the paper: "Maternal Cardiovascular-Related S
 
 ## Results
 
-The paper contains a summary and explanation of the findings and the `src` folder contains the scripts. You can also see the results of the R code, without running it yourself, in notebook format here: https://breckuh.github.io/eopegwas/src/main.nb.html
+The paper contains a summary and explanation of the findings and the `src` folder contains the scripts. You can also see the results of the R code, without running it yourself, in notebook format here: [https://breckuh.github.io/eopegwas/src/main.nb.html](https://breckuh.github.io/eopegwas/src/main.nb.html)
 
-Results of snpQC report are here: https://github.com/breckuh/preeclampsiagwas/blob/master/snpQCreport.pdf
+Results of snpQC report are here: [https://github.com/breckuh/preeclampsiagwas/blob/master/snpQCreport.pdf](https://github.com/breckuh/preeclampsiagwas/blob/master/snpQCreport.pdf)
 
 ## Data required
 
@@ -34,7 +34,7 @@ For some of the R notebooks, you'll first have to run `thread.r` to generate the
 results to the cache folder.
 
 ## Phylotree
-You'll need to download and install this program: http://chibba.pgml.uga.edu/snphylo/ to run the phylotree.rmd script. Put the Phylotree scripts in the ignore folder.
+You'll need to download and install this program: [http://chibba.pgml.uga.edu/snphylo/](http://chibba.pgml.uga.edu/snphylo/) to run the phylotree.rmd script. Put the Phylotree scripts in the ignore folder.
 
 ## Testing
 Run `rmarkdown::render('main.rmd')` to execute the majority of the code
