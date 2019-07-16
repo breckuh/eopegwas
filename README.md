@@ -4,19 +4,29 @@ This repository holds the code for the paper: "Maternal Cardiovascular-Related S
 
 ## Results
 
-The paper contains a summary and explanation of the findings and the `src` folder contains the scripts. You can also see the results of the R code, without running it yourself, in notebook format here: [https://breckuh.github.io/eopegwas/src/main.nb.html](https://breckuh.github.io/eopegwas/src/main.nb.html)
+The paper (todo: add link to paper) contains a summary and explanation of the findings.
+
+The `src` folder contains the scripts used to do the analysis.
+
+You can also skim the R exploratory analysis of the data, without running it yourself, in notebook format here: [https://breckuh.github.io/eopegwas/src/main.nb.html](https://breckuh.github.io/eopegwas/src/main.nb.html)
 
 Results of snpQC report are here: [https://github.com/breckuh/preeclampsiagwas/blob/master/snpQCreport.pdf](https://github.com/breckuh/preeclampsiagwas/blob/master/snpQCreport.pdf)
 
-## Data required
+## How to Use This Code
 
-You can reuse this code with your own data to perform similar experiments, or use it with the provided simulated data (coming soon!) which is identical to our data except simulated for privacy reasons. Or you can contact us for our raw data to get the exact same results. The data sources required are:
+If you want, you can reuse this code with your own data to perform similar experiments.
+
+You can also use it with the provided simulated data (coming soon!) which is identical to our data except simulated for privacy reasons.
+
+If you'd like to run this code and get the exact same results as us, please contact us for our raw data files.
+
+The data sources required are:
 
 - data/072312_FinalReport.txt
 - data/clinical.csv
 - data/cardio-metabo_chip_11395247_a.csv
 
-The format for the data is: (todo: add).
+The format for the data is: (todo: add schema information).
 
 ## Setup Instructions
 
