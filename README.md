@@ -1,6 +1,6 @@
-# preeclampsiagwas
+# Maternal Cardiovascular-Related Single Nucleotide Polymorphisms, Genes and Pathways Associated with Early-Onset Preeclampsia
 
-This repository holds the code for the paper: "Maternal Cardiovascular-Related Single Nucleotide Polymorphisms, Genes and Pathways Associated with Early-Onset Preeclampsia".
+This repository holds the code for the paper.
 
 ## Results
 
