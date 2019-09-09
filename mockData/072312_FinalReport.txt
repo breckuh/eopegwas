@@ -1,0 +1,18 @@
+[Header]
+GSGT Version    1.9.4
+Processing Date 8/1/2012 2:35 PM
+Content         Cardio-Metabo_Chip_11395247_A.bpm
+Num SNPs        196725
+Total SNPs      196725
+Num Samples     60
+Total Samples   60
+[Data]
+SNP Name        Sample ID       Allele1 - Top   Allele2 - Top   GC Score        SNP
+chr1:109457160  2       C       C       0.8609  [T/G]
+chr1:109457233  3       C       C       0.7725  [T/G]
+chr1:160430131  6       G       G       0.8559  [T/C]
+chr1:160430666  22       A       A       0.4037  [A/C]
+rs9993542 100 G G 0.7808  [A/G]
+rs999427  101 A G 0.9457  [A/G]
+rs9996202 103 - - 0.0000  [T/C]
+rs9996503 104 G G 0.7866  [A/G]
