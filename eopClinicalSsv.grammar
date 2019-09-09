@@ -1,0 +1,84 @@
+eopClinicalNode
+ description Tree Language grammar file for the EOPEGWAS clinical data. You can use this file to verify the integrity of the clinical data, as well as generate new simulated data.
+ root
+ inScope commentNode
+ catchAllNodeType patientNode
+keywordCell
+intCell
+ highlightScope constant.numeric
+bitCell
+ highlightScope constant.numeric.integer
+floatCell
+ highlightScope constant.numeric
+bmiCell
+ description Body Mass Index
+ extends floatCell
+anyCell
+ethnicityCell
+ highlightScope string
+ description Self-reported ethnicity.
+ enum Hawaiian Chinese Filipino Mexican Caucasian Portuguese Japanese Spanish Filipino Unknown Okinawan Marshallese PuertoRican Irish AmericanIndian Albanian Venezuela TrinidadandTobago German Scottish English Samoan
+ethnicityCategoryCell
+ description Our categorization.
+ highlightScope keyword
+ enum PacificIslander Asian Filipino Caucasian Unknown
+ageCell
+ extends intCell
+ description Age in years
+patientIdCell
+ extends intCell
+ description Unique patient identifier
+gestAgeInWeeksCell
+ extends floatCell
+percentCell
+ description A percentage, multiplied by 100. So .1 becomes 10.0
+ extends floatCell
+mgDlCell
+ description mg/dL
+ extends intCell
+weightInGramsCell
+ extends floatCell
+commentCell
+ highlightScope comment
+commentNode
+ catchAllCellType commentCell
+ catchAllNodeType commentNode
+hasPreeclampsiaCell
+ extends bitCell
+ description Diagnosis. 1 = positive.
+momAgeCell
+ extends ageCell
+ethnicity1Cell
+ extends ethnicityCell
+ethnicity1PercentCell
+ extends percentCell
+ethnicity2Cell
+ extends ethnicityCell
+ethnicity2PercentCell
+ extends percentCell
+ethnicity3Cell
+ extends ethnicityCell
+ethnicity3PercentCell
+ extends percentCell
+primaGravidaCell
+ description First child?
+ extends bitCell
+number3HrGlucose1HrGlucolaCell
+ extends mgDlCell
+gdmCell
+ description Gestational diabetes
+ extends bitCell
+iugrCell
+ description Intrauterine growth restriction
+ extends bitCell
+abruptionCell
+ extends bitCell
+daughterCell
+ description 1 means child is female
+ extends bitCell
+babyWgtGramCell
+ extends weightInGramsCell
+placentaWgtGramCell
+ extends weightInGramsCell
+patientNode
+ cells patientIdCell hasPreeclampsiaCell momAgeCell bmiCell gestAgeInWeeksCell ethnicity1Cell ethnicity1PercentCell ethnicity2Cell ethnicity2PercentCell ethnicity3Cell ethnicity3PercentCell ethnicityCategoryCell primaGravidaCell number3HrGlucose1HrGlucolaCell gdmCell iugrCell abruptionCell daughterCell babyWgtGramCell placentaWgtGramCell

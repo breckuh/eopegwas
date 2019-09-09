@@ -41,3 +41,5 @@ cache/
 *.model
 
 output/
+ignore/
+node_modules/
